@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-
+import os
 import sys
 try:
     import pygtk
@@ -76,15 +76,38 @@ class GeocluePropertiesDialog:
         cellrenderer.set_property('xalign', 0.5)
         self.provider_treeview.append_column (column)
 
-        self.provider_store = gtk.ListStore (str, str, bool, bool)
+        cellrenderer = gtk.CellRendererText ()
+        column = gtk.TreeViewColumn("Geocoding", cellrenderer)
+        column.add_attribute(cellrenderer, 'text', 1)
+        column.add_attribute(cellrenderer, 'visible', 4)
+        cellrenderer.set_property('xalign', 0.5)
+        self.provider_treeview.append_column (column)
+
+        cellrenderer = gtk.CellRendererText ()
+        column = gtk.TreeViewColumn("Rev. Geocoding", cellrenderer)
+        column.add_attribute(cellrenderer, 'text', 1)
+        column.add_attribute(cellrenderer, 'visible', 5)
+        cellrenderer.set_property('xalign', 0.5)
+        self.provider_treeview.append_column (column)
+
+        self.provider_store = gtk.ListStore (str, str, bool, bool, bool, bool)
         self.provider_store.set_sort_column_id (0, gtk.SORT_ASCENDING)
 
-        self.provider_store.append(["<b>Manual</b>\nSets a static address", "✔", True, False])
-        self.provider_store.append(["<b>LocalNet</b>\nSets the address based on network", "✔", True, False])
-        self.provider_store.append(["<b>GeoNames</b>\nProvides reversed geocoding", "✔", False, False])
-        self.provider_store.append(["<b>HostIp</b>\nSets the address and position based on the IP", "✔", True, True])
-        self.provider_store.append(["<b>Plazes</b>\nSets the address and position based on the Wifi", "✔", True, True])
-        self.provider_store.append(["<b>Yahoo</b>\nProvides geocoding", "✔", False, False])
+        path = "/usr/share/geoclue-providers/"
+        dir = os.listdir(path)
+
+        for filename in dir:
+            (name, ext) = os.path.splitext(filename)
+
+            if ext == ".provider":
+                complete = os.path.join(path, filename)
+                provider = geoclue.GeoclueProvider (complete)
+                self.provider_store.append([provider.name, "✔",
+                  provider.interfaces & geoclue.INTERFACE_ADDRESS,
+                  provider.interfaces & geoclue.INTERFACE_POSITION,
+                  provider.interfaces & geoclue.INTERFACE_GEOCODE,
+                  provider.interfaces & geoclue.INTERFACE_REVERSE_GEOCODE,
+                  ])
 
         self.provider_treeview.set_model (self.provider_store)
 
