@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 
 import sys
 try:
@@ -9,6 +11,7 @@ except:
 
 try:
     import gtk
+    import pango
 except:
     print "Can't import Gtk"
     sys.exit(1)
@@ -39,9 +42,54 @@ class GeocluePropertiesDialog:
 
         self.dialog = builder.get_object("properties_dialog")
 
-        # Setup current address display
         self.address_provider_label = builder.get_object("address_provider_label")
         self.address_treeview = builder.get_object("address_treeview")
+        self.position_provider_label = builder.get_object("position_provider_label")
+        self.position_treeview = builder.get_object("position_treeview")
+        self.provider_treeview = builder.get_object("provider_treeview")
+
+        self.create_general_tab()
+        self.create_provider_tab()
+
+        self.dialog = builder.get_object("properties_dialog")
+        self.dialog.show ()
+
+    def create_provider_tab (self):
+        cellrenderer = gtk.CellRendererText ()
+        cellrenderer.set_property('ellipsize', pango.ELLIPSIZE_END)
+        column = gtk.TreeViewColumn("Name", cellrenderer)
+        column.add_attribute(cellrenderer, 'markup', 0)
+        column.set_expand (True)
+        self.provider_treeview.append_column (column)
+
+        cellrenderer = gtk.CellRendererText ()
+        column = gtk.TreeViewColumn("Address", cellrenderer)
+        column.add_attribute(cellrenderer, 'text', 1)
+        column.add_attribute(cellrenderer, 'visible', 2)
+        cellrenderer.set_property('xalign', 0.5)
+        self.provider_treeview.append_column (column)
+
+        cellrenderer = gtk.CellRendererText ()
+        column = gtk.TreeViewColumn("Position", cellrenderer)
+        column.add_attribute(cellrenderer, 'text', 1)
+        column.add_attribute(cellrenderer, 'visible', 3)
+        cellrenderer.set_property('xalign', 0.5)
+        self.provider_treeview.append_column (column)
+
+        self.provider_store = gtk.ListStore (str, str, bool, bool)
+        self.provider_store.set_sort_column_id (0, gtk.SORT_ASCENDING)
+
+        self.provider_store.append(["<b>Manual</b>\nSets a static address", "✔", True, False])
+        self.provider_store.append(["<b>LocalNet</b>\nSets the address based on network", "✔", True, False])
+        self.provider_store.append(["<b>GeoNames</b>\nProvides reversed geocoding", "✔", False, False])
+        self.provider_store.append(["<b>HostIp</b>\nSets the address and position based on the IP", "✔", True, True])
+        self.provider_store.append(["<b>Plazes</b>\nSets the address and position based on the Wifi", "✔", True, True])
+        self.provider_store.append(["<b>Yahoo</b>\nProvides geocoding", "✔", False, False])
+
+        self.provider_treeview.set_model (self.provider_store)
+
+    def create_general_tab (self):
+        # Setup current address display
 
         cellrenderer = gtk.CellRendererText ()
         column = gtk.TreeViewColumn("Field", cellrenderer)
@@ -54,9 +102,6 @@ class GeocluePropertiesDialog:
         self.address_treeview.append_column (column)
 
         # Setup current position display
-        self.position_provider_label = builder.get_object("position_provider_label")
-        self.position_treeview = builder.get_object("position_treeview")
-
         cellrenderer = gtk.CellRendererText ()
         column = gtk.TreeViewColumn("Field", cellrenderer)
         column.add_attribute(cellrenderer, 'text', 0)
@@ -96,9 +141,6 @@ class GeocluePropertiesDialog:
             print e
 
         client.SetRequirements(geoclue.ACCURACY_LEVEL_NONE, 0, False, geoclue.RESOURCE_ALL)
-
-        self.dialog = builder.get_object("properties_dialog")
-        self.dialog.show ()
 
     def address_provider_changed (self, name, description, service, path):
         self.address_provider_label.set_text(name)
