@@ -11,6 +11,7 @@ except:
 
 try:
     import gtk
+    import gobject
     import pango
 except:
     print "Can't import Gtk"
@@ -38,6 +39,7 @@ class GeocluePropertiesDialog:
         builder.connect_signals({
           "on_properties_dialog_close" : gtk.main_quit,
           "on_close_button_clicked": gtk.main_quit,
+          "on_preferences_button_clicked": self.on_preferences_button_clicked,
           })
 
         self.dialog = builder.get_object("properties_dialog")
@@ -47,6 +49,7 @@ class GeocluePropertiesDialog:
         self.position_provider_label = builder.get_object("position_provider_label")
         self.position_treeview = builder.get_object("position_treeview")
         self.provider_treeview = builder.get_object("provider_treeview")
+        self.preferences_button = builder.get_object("preferences_button")
 
         self.create_general_tab()
         self.create_provider_tab()
@@ -58,40 +61,46 @@ class GeocluePropertiesDialog:
         cellrenderer = gtk.CellRendererText ()
         cellrenderer.set_property('ellipsize', pango.ELLIPSIZE_END)
         column = gtk.TreeViewColumn("Name", cellrenderer)
-        column.add_attribute(cellrenderer, 'markup', 0)
+        column.add_attribute(cellrenderer, 'markup', 1)
         column.set_expand (True)
         self.provider_treeview.append_column (column)
 
         cellrenderer = gtk.CellRendererText ()
         column = gtk.TreeViewColumn("Address", cellrenderer)
-        column.add_attribute(cellrenderer, 'text', 1)
-        column.add_attribute(cellrenderer, 'visible', 2)
-        cellrenderer.set_property('xalign', 0.5)
-        self.provider_treeview.append_column (column)
-
-        cellrenderer = gtk.CellRendererText ()
-        column = gtk.TreeViewColumn("Position", cellrenderer)
-        column.add_attribute(cellrenderer, 'text', 1)
+        column.add_attribute(cellrenderer, 'text', 2)
         column.add_attribute(cellrenderer, 'visible', 3)
         cellrenderer.set_property('xalign', 0.5)
         self.provider_treeview.append_column (column)
 
         cellrenderer = gtk.CellRendererText ()
-        column = gtk.TreeViewColumn("Geocoding", cellrenderer)
-        column.add_attribute(cellrenderer, 'text', 1)
+        column = gtk.TreeViewColumn("Position", cellrenderer)
+        column.add_attribute(cellrenderer, 'text', 2)
         column.add_attribute(cellrenderer, 'visible', 4)
         cellrenderer.set_property('xalign', 0.5)
         self.provider_treeview.append_column (column)
 
         cellrenderer = gtk.CellRendererText ()
-        column = gtk.TreeViewColumn("Rev. Geocoding", cellrenderer)
-        column.add_attribute(cellrenderer, 'text', 1)
+        column = gtk.TreeViewColumn("Geocoding", cellrenderer)
+        column.add_attribute(cellrenderer, 'text', 2)
         column.add_attribute(cellrenderer, 'visible', 5)
         cellrenderer.set_property('xalign', 0.5)
         self.provider_treeview.append_column (column)
 
-        self.provider_store = gtk.ListStore (str, str, bool, bool, bool, bool)
-        self.provider_store.set_sort_column_id (0, gtk.SORT_ASCENDING)
+        cellrenderer = gtk.CellRendererText ()
+        column = gtk.TreeViewColumn("Rev. Geocoding", cellrenderer)
+        column.add_attribute(cellrenderer, 'text', 2)
+        column.add_attribute(cellrenderer, 'visible', 6)
+        cellrenderer.set_property('xalign', 0.5)
+        self.provider_treeview.append_column (column)
+
+        self.provider_store = gtk.ListStore (gobject.TYPE_PYOBJECT,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN)
+        self.provider_store.set_sort_column_id (1, gtk.SORT_ASCENDING)
 
         path = "/usr/share/geoclue-providers/"
         dir = os.listdir(path)
@@ -102,7 +111,8 @@ class GeocluePropertiesDialog:
             if ext == ".provider":
                 complete = os.path.join(path, filename)
                 provider = geoclue.GeoclueProvider (complete)
-                self.provider_store.append([provider.name, "✔",
+                self.provider_store.append([provider,
+                  provider.name, "✔",
                   provider.interfaces & geoclue.INTERFACE_ADDRESS,
                   provider.interfaces & geoclue.INTERFACE_POSITION,
                   provider.interfaces & geoclue.INTERFACE_GEOCODE,
@@ -110,6 +120,24 @@ class GeocluePropertiesDialog:
                   ])
 
         self.provider_treeview.set_model (self.provider_store)
+        selection = self.provider_treeview.get_selection ()
+        selection.connect("changed", self.provider_selection_changed)
+
+    def provider_selection_changed (self, selection):
+        (model, iter) = selection.get_selected ()
+        provider = model.get_value (iter, 0)
+
+        if provider.name == "Manual" or provider.name == "Localnet":
+            self.preferences_button.set_sensitive(True)
+        else:
+            self.preferences_button.set_sensitive(False)
+
+    def on_preferences_button_clicked (self, button):
+        selection = self.provider_treeview.get_selection()
+        (model, iter) = selection.get_selected ()
+        provider = model.get_value (iter, 0)
+
+        print provider.name
 
     def create_general_tab (self):
         # Setup current address display
@@ -180,9 +208,6 @@ class GeocluePropertiesDialog:
 
         self.address_treeview.set_model (self.address_store)
         mydate = date.fromtimestamp(timestamp)
-
-        print mydate
-        print accuracy
 
     def position_changed (self, fields, timestamp, latitude, longitude, altitude, accuracy):
         self.position_store = gtk.ListStore (str, str)
