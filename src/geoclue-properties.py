@@ -25,7 +25,6 @@ from datetime import date
 DBusGMainLoop(set_as_default=True)
 
 class GeocluePropertiesDialog:
-    """This is an Hello World GTK application"""
 
     def __init__(self):
 
