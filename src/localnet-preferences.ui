@@ -2,10 +2,11 @@
 <interface>
   <requires lib="gtk+" version="2.16"/>
   <!-- interface-naming-policy project-wide -->
-  <object class="GtkDialog" id="localnet_dialog">
+  <object class="GtkDialog" id="localnet_preferences_dialog">
     <property name="border_width">5</property>
-    <property name="title" translatable="yes">Location Awareness Configuration</property>
+    <property name="title" translatable="yes">Localnet Provider Preferences</property>
     <property name="window_position">center</property>
+    <property name="default_height">400</property>
     <property name="type_hint">normal</property>
     <property name="has_separator">False</property>
     <child internal-child="vbox">
@@ -31,6 +32,8 @@
                     <property name="wrap">True</property>
                   </object>
                   <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
                     <property name="position">0</property>
                   </packing>
                 </child>
@@ -66,7 +69,7 @@
                     <child type="label">
                       <object class="GtkLabel" id="label2">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Current Address&lt;/b&gt;</property>
+                        <property name="label" translatable="yes">&lt;b&gt;Current Address according to this provider&lt;/b&gt;</property>
                         <property name="use_markup">True</property>
                       </object>
                     </child>
@@ -100,7 +103,7 @@
                     <property name="vscrollbar_policy">automatic</property>
                     <property name="shadow_type">in</property>
                     <child>
-                      <object class="GtkTreeView" id="provider_treeview">
+                      <object class="GtkTreeView" id="addresses_treeview">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                       </object>
@@ -115,13 +118,14 @@
                     <property name="visible">True</property>
                     <property name="layout_style">end</property>
                     <child>
-                      <object class="GtkButton" id="preferences_button">
+                      <object class="GtkButton" id="edit_button">
                         <property name="label" translatable="yes">gtk-edit</property>
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="use_stock">True</property>
+                        <signal name="activate" handler="on_edit_button_activate"/>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -166,6 +170,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
+                <signal name="clicked" handler="on_close_button_clicked"/>
               </object>
               <packing>
                 <property name="expand">False</property>

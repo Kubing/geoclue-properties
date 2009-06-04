@@ -19,9 +19,10 @@ except:
 
 import dbus
 from dbus.mainloop.glib import DBusGMainLoop
-import geoclue
 from datetime import date
 
+import geoclue
+from localnet_preferences import LocalnetPreferencesDialog
 DBusGMainLoop(set_as_default=True)
 
 class GeocluePropertiesDialog:
@@ -40,8 +41,6 @@ class GeocluePropertiesDialog:
           "on_close_button_clicked": gtk.main_quit,
           "on_preferences_button_clicked": self.on_preferences_button_clicked,
           })
-
-        self.dialog = builder.get_object("properties_dialog")
 
         self.address_provider_label = builder.get_object("address_provider_label")
         self.address_treeview = builder.get_object("address_treeview")
@@ -136,7 +135,8 @@ class GeocluePropertiesDialog:
         (model, iter) = selection.get_selected ()
         provider = model.get_value (iter, 0)
 
-        print provider.name
+        if provider.name == "Localnet":
+            dialog = LocalnetPreferencesDialog()
 
     def create_general_tab (self):
         # Setup current address display
