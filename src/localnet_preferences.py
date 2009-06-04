@@ -16,9 +16,11 @@ except:
     print "Can't import Gtk"
     sys.exit(1)
 
-import geoclue
 import dbus
 from datetime import date
+import ConfigParser
+
+import geoclue
 
 class LocalnetPreferencesDialog:
 
@@ -37,10 +39,11 @@ class LocalnetPreferencesDialog:
           })
 
         self.address_treeview = builder.get_object("address_treeview")
-        #self.provider_treeview = builder.get_object("provider_treeview")
+        self.addresses_treeview = builder.get_object("addresses_treeview")
         self.edit_button = builder.get_object("edit_button")
 
         self.create_general_tab()
+        self.create_addresses_tab()
 
         self.dialog = builder.get_object("localnet_preferences_dialog")
         self.dialog.show ()
@@ -80,10 +83,96 @@ class LocalnetPreferencesDialog:
           self.address_store.append([key, value])
 
         self.address_treeview.set_model (self.address_store)
-        mydate = date.fromtimestamp(timestamp)
 
     def on_dialog_close (self, button):
         self.dialog.hide()
 
     def on_edit_button_activate (self):
         pass
+
+    def create_addresses_tab (self):
+        # Setup current address display
+
+        cellrenderer = gtk.CellRendererText ()
+        column = gtk.TreeViewColumn("Mac Address", cellrenderer)
+        column.add_attribute(cellrenderer, 'text', 0)
+        self.addresses_treeview.append_column (column)
+
+        cellrenderer = gtk.CellRendererText ()
+        cellrenderer.set_property('ellipsize', pango.ELLIPSIZE_END)
+        column = gtk.TreeViewColumn("Address", cellrenderer)
+        column.add_attribute(cellrenderer, 'text', 1)
+        column.set_expand (True)
+        self.addresses_treeview.append_column (column)
+
+        self.addresses_store = gtk.ListStore (str, str)
+        self.addresses_store.set_sort_column_id (0, gtk.SORT_ASCENDING)
+
+        self.addresses_treeview.set_model (self.addresses_store)
+        self.load_addresses ()
+
+    def load_addresses (self):
+
+        filename = os.path.expanduser("~/.config/geoclue-localnet-gateways")
+        file = ConfigParser.RawConfigParser()
+        file.read(filename)
+
+        for section in file.sections ():
+            address = {}
+            try:
+                address['street'] = file.get(section, 'street')
+            except ConfigParser.NoOptionError:
+                pass
+            try:
+                address['street'] = file.get(section, 'street')
+            except ConfigParser.NoOptionError:
+                pass
+            try:
+                address['area'] = file.get(section, 'area')
+            except ConfigParser.NoOptionError:
+                pass
+            try:
+                address['locality'] = file.get(section, 'locality')
+            except ConfigParser.NoOptionError:
+                pass
+            try:
+                address['region'] = file.get(section, 'region')
+            except ConfigParser.NoOptionError:
+                pass
+            try:
+                address['country'] = file.get(section, 'country')
+            except ConfigParser.NoOptionError:
+                pass
+            try:
+                address['country_code']  =file.get(section, 'countrycode')
+            except ConfigParser.NoOptionError:
+                pass
+            try:
+                address['postal_code'] = file.get(section, 'postalcode')
+            except ConfigParser.NoOptionError:
+                pass
+
+            line = ""
+            try:
+                line += address['street'] + ", "
+            except KeyError:
+                pass
+            try:
+                line += address['area'] + ", "
+            except KeyError:
+                pass
+            try:
+                line += address['locality'] + ", "
+            except KeyError:
+                pass
+            try:
+                line += address['region'] + ", "
+            except KeyError:
+                pass
+            try:
+                line += address['country']
+            except KeyError:
+                pass
+
+            self.addresses_store.append([section, line])
+            address = None
