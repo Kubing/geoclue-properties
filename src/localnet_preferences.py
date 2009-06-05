@@ -140,7 +140,7 @@ class LocalnetPreferencesDialog:
         pass
 
     def on_edit_current_button_clicked (self, selection):
-        dialog = AddressDialog("New Address", "Enter the address associated with the current network.", self.address)
+        dialog = AddressDialog("New Address", "Enter an address.", self.address)
         response = dialog.run ()
 
         if response == gtk.RESPONSE_OK:

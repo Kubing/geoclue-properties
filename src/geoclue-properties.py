@@ -23,6 +23,8 @@ from datetime import date
 
 import geoclue
 from localnet_preferences import LocalnetPreferencesDialog
+from manual_preferences import ManualPreferencesDialog
+
 DBusGMainLoop(set_as_default=True)
 
 class GeocluePropertiesDialog:
@@ -137,6 +139,8 @@ class GeocluePropertiesDialog:
 
         if provider.name == "Localnet":
             dialog = LocalnetPreferencesDialog(provider)
+        elif provider.name == "Manual":
+            dialog = ManualPreferencesDialog(provider)
 
     def create_general_tab (self):
         # Setup current address display
