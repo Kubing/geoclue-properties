@@ -1,5 +1,6 @@
 import ConfigParser
- 
+import dbus
+
 POSITION_FIELDS_NONE = 0
 POSITION_FIELDS_LATITUDE = 1 << 0
 POSITION_FIELDS_LONGITUDE = 1 << 1
@@ -57,4 +58,6 @@ class GeoclueProvider():
                self.interfaces += INTERFACE_GEOCODE
             elif interface == "org.freedesktop.Geoclue.ReverseGeocode":
                self.interfaces += INTERFACE_REVERSE_GEOCODE
-
+    def get_proxy (self):
+        self.bus = dbus.SessionBus()
+        return self.bus.get_object(self.service, self.path)

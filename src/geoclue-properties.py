@@ -136,7 +136,7 @@ class GeocluePropertiesDialog:
         provider = model.get_value (iter, 0)
 
         if provider.name == "Localnet":
-            dialog = LocalnetPreferencesDialog()
+            dialog = LocalnetPreferencesDialog(provider)
 
     def create_general_tab (self):
         # Setup current address display

@@ -21,10 +21,12 @@ from datetime import date
 import ConfigParser
 
 import geoclue
+from address_dialog import AddressDialog
 
 class LocalnetPreferencesDialog:
 
-    def __init__(self):
+    def __init__(self, provider):
+        self.provider = provider
 
         self.bus = dbus.SessionBus()
 
@@ -34,13 +36,17 @@ class LocalnetPreferencesDialog:
         builder.add_from_file(self.uifile)
 
         builder.connect_signals({
-          "on_edit_button_activate" : self.on_edit_button_activate,
+          "on_add_button_clicked" : self.on_add_button_clicked,
+          "on_edit_current_button_clicked" : self.on_edit_current_button_clicked,
+          "on_edit_button_clicked" : self.on_edit_button_clicked,
+          "on_remove_button_clicked" : self.on_remove_button_clicked,
           "on_close_button_clicked" : self.on_dialog_close,
           })
 
         self.address_treeview = builder.get_object("address_treeview")
         self.addresses_treeview = builder.get_object("addresses_treeview")
         self.edit_button = builder.get_object("edit_button")
+        self.remove_button = builder.get_object("remove_button")
 
         self.create_general_tab()
         self.create_addresses_tab()
@@ -62,8 +68,7 @@ class LocalnetPreferencesDialog:
         self.address_treeview.append_column (column)
 
         try:
-            localnet = self.bus.get_object('org.freedesktop.Geoclue.Providers.Localnet',
-                '/org/freedesktop/Geoclue/Providers/Localnet')
+            localnet = self.provider.get_proxy()
 
             address = dbus.Interface(localnet, dbus_interface='org.freedesktop.Geoclue.Address')
             address.connect_to_signal("AddressChanged", self.address_changed)
@@ -76,6 +81,9 @@ class LocalnetPreferencesDialog:
             print e
 
     def address_changed (self, timestamp, address, accuracy):
+        self.update_current_address (address)
+
+    def update_current_address (self, address):
         self.address_store = gtk.ListStore (str, str)
         self.address_store.set_sort_column_id (0, gtk.SORT_ASCENDING)
 
@@ -83,12 +91,14 @@ class LocalnetPreferencesDialog:
           self.address_store.append([key, value])
 
         self.address_treeview.set_model (self.address_store)
+        self.address = address
 
     def on_dialog_close (self, button):
         self.dialog.hide()
 
-    def on_edit_button_activate (self):
-        pass
+    def on_edit_button_clicked (self):
+        dialog = AddressDialog()
+        print dialog.run ()
 
     def create_addresses_tab (self):
         # Setup current address display
@@ -111,7 +121,43 @@ class LocalnetPreferencesDialog:
         self.addresses_treeview.set_model (self.addresses_store)
         self.load_addresses ()
 
+        selection = self.addresses_treeview.get_selection ()
+        selection.connect("changed", self.addresses_selection_changed)
+
+    def addresses_selection_changed (self, selection):
+        (model, iter) = selection.get_selected ()
+
+        if iter is None:
+            pass
+            #self.edit_button.set_sensitive(False)
+            #self.remove_button.set_sensitive(False)
+        else:
+            #self.edit_button.set_sensitive(True)
+            pass
+            #self.remove_button.set_sensitive(True)
+
+    def on_add_button_clicked (self, selection):
+        pass
+
+    def on_edit_current_button_clicked (self, selection):
+        dialog = AddressDialog("New Address", "Enter the address associated with the current network.", self.address)
+        response = dialog.run ()
+
+        if response == gtk.RESPONSE_OK:
+            try:
+                localnet = self.provider.get_proxy()
+                localnet.SetAddress (dialog.address)
+            except Exception, e:
+                print "D-Bus error: %s" % e
+            #FIXME: the new address doesn't show up in the UI
+            self.update_current_address (dialog.address)
+            self.load_addresses ()
+
+    def on_remove_button_clicked (self, selection):
+        pass
+
     def load_addresses (self):
+        self.addresses_store.clear()
 
         filename = os.path.expanduser("~/.config/geoclue-localnet-gateways")
         file = ConfigParser.RawConfigParser()
