@@ -183,18 +183,18 @@ class GeocluePropertiesDialog:
         except Exception, e:
             print "D-Bus error: %s" % e
 
+        client.SetRequirements(geoclue.ACCURACY_LEVEL_COUNTRY, 0, True, geoclue.RESOURCE_NETWORK)
+
         try:
             self.address_changed (*address.GetAddress())
         except Exception, e:
             print e
 
         try:
-            current_position = position.GetPosition()
-            self.position_changed (*position)
+            self.position_changed (*position.GetPosition())
         except Exception, e:
             print e
 
-        client.SetRequirements(geoclue.ACCURACY_LEVEL_NONE, 0, False, geoclue.RESOURCE_ALL)
 
     def address_provider_changed (self, name, description, service, path):
         self.address_provider_label.set_text(name)
@@ -216,13 +216,13 @@ class GeocluePropertiesDialog:
         self.position_store = gtk.ListStore (str, str)
         self.position_store.set_sort_column_id (0, gtk.SORT_ASCENDING)
 
-        self.position_treeview.set_model (self.address_store)
+        self.position_treeview.set_model (self.position_store)
 
-        if fields & POSITION_FIELDS_LATITUDE:
+        if fields & geoclue.POSITION_FIELDS_LATITUDE:
             self.position_store.append(["Latitude", "%0.5f" % latitude])
-        if fields & POSITION_FIELDS_LONGITUDE:
+        if fields & geoclue.POSITION_FIELDS_LONGITUDE:
             self.position_store.append(["Longitude", "%0.5f" % longitude])
-        if fields & POSITION_FIELDS_ALTITUDE:
+        if fields & geoclue.POSITION_FIELDS_ALTITUDE:
             self.position_store.append(["Altitude", "%0.5f" % altitude])
 
 if __name__ == "__main__":
