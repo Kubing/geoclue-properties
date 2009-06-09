@@ -1,6 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# Copyright (C) 2009 Pierre-Luc Beaudoin
+
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public
+# License along with this program; if not, write to the
+# Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+# Boston, MA  02110-1301  USA
+
 import os
 import sys
 try:
@@ -42,6 +59,7 @@ class GeocluePropertiesDialog:
           "on_properties_dialog_close" : gtk.main_quit,
           "on_close_button_clicked": gtk.main_quit,
           "on_preferences_button_clicked": self.on_preferences_button_clicked,
+          "on_about_button_clicked": self.on_about_button_clicked,
           })
 
         self.address_provider_label = builder.get_object("address_provider_label")
@@ -141,6 +159,21 @@ class GeocluePropertiesDialog:
             dialog = LocalnetPreferencesDialog(provider)
         elif provider.name == "Manual":
             dialog = ManualPreferencesDialog(provider)
+
+    def on_about_button_clicked (self, button):
+        license_file = open( "/usr/share/common-licenses/LGPL-2.1", "r" )
+        license = license_file.read()
+        license_file.close()
+
+        dialog = gtk.AboutDialog()
+        dialog.set_name("Geoclue Properties")
+        dialog.set_version("0.1")
+        dialog.set_copyright("© 2009, Pierre-Luc Beaudoin")
+        dialog.set_comments("Configure and debug Geoclue with your mouse.")
+        dialog.set_license(license)
+        dialog.set_authors(["Pierre-Luc Beaudoin <pierre-luc@pierlux.com>"])
+        dialog.run()
+        dialog.hide()
 
     def create_general_tab (self):
         # Setup current address display
