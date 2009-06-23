@@ -1,6 +1,4 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 # Copyright (C) 2009 Pierre-Luc Beaudoin
 
 # This program is free software; you can redistribute it and/or
@@ -50,7 +48,8 @@ class GeocluePropertiesDialog:
 
         self.bus = dbus.SessionBus()
 
-        self.uifile = "geoclue-properties.ui"
+        path = os.path.dirname(os.path.abspath(__file__))
+        self.uifile = os.path.join(path, "geoclue-properties.ui")
 
         builder = gtk.Builder()
         builder.add_from_file(self.uifile)
@@ -258,6 +257,10 @@ class GeocluePropertiesDialog:
         if fields & geoclue.POSITION_FIELDS_ALTITUDE:
             self.position_store.append(["Altitude", "%0.5f" % altitude])
 
-if __name__ == "__main__":
+def main():
     dialog = GeocluePropertiesDialog()
     gtk.main()
+
+if __name__ == "__main__":
+    main()
+

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Name=Location Awareness Configuration
+Icon=geoclue-properties
+Comment=Configuration of location awareness library Geoclue
+Exec=/usr/bin/geoclue-properties %F
+Terminal=false
+Type=Application
+Categories=GNOME;GTK;Settings;
+StartupNotify=true
+Name[en_US]=Location Awareness Configuration

@@ -47,7 +47,8 @@ class LocalnetPreferencesDialog:
 
         self.bus = dbus.SessionBus()
 
-        self.uifile = "localnet-preferences.ui"
+        path = os.path.dirname(os.path.abspath(__file__))
+        self.uifile = os.path.join(path, "localnet-preferences.ui")
 
         builder = gtk.Builder()
         builder.add_from_file(self.uifile)

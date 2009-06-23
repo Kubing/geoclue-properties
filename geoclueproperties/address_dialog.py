@@ -14,12 +14,14 @@ except:
     sys.exit(1)
 
 import geoclue
+import os
 
 class AddressDialog:
 
     def __init__(self, title, description, address = None):
 
-        self.uifile = "address-dialog.ui"
+        path = os.path.dirname(os.path.abspath(__file__))
+        self.uifile = os.path.join(path, "address-dialog.ui")
 
         builder = gtk.Builder()
         builder.add_from_file(self.uifile)

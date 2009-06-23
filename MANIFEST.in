@@ -1,0 +1,2 @@
+include AUTHORS COPYING README MAINTAINERS geoclue-properties.desktop geoclue-properties
+recursive-include geoclueproperties *.ui
