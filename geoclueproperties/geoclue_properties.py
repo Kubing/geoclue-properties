@@ -215,7 +215,7 @@ class GeocluePropertiesDialog:
         except Exception, e:
             print "D-Bus error: %s" % e
 
-        client.SetRequirements(geoclue.ACCURACY_LEVEL_COUNTRY, 0, True, geoclue.RESOURCE_NETWORK)
+        client.SetRequirements(geoclue.ACCURACY_LEVEL_COUNTRY, 0, False, geoclue.RESOURCE_NETWORK)
 
         try:
             self.address_changed (*address.GetAddress())
