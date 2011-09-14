@@ -19,16 +19,10 @@
 
 import os
 import sys
-try:
-    import pygtk
-    pygtk.require("2.0")
-except:
-    pass
 
 try:
-    import gtk
-    import gobject
-    import pango
+    from gi.repository import Gtk
+    from gi.repository import Pango
 except:
     print "Can't import Gtk"
     sys.exit(1)
@@ -50,7 +44,7 @@ class LocalnetPreferencesDialog:
         path = os.path.dirname(os.path.abspath(__file__))
         self.uifile = os.path.join(path, "localnet-preferences.ui")
 
-        builder = gtk.Builder()
+        builder = Gtk.Builder()
         builder.add_from_file(self.uifile)
 
         builder.connect_signals({
@@ -75,13 +69,13 @@ class LocalnetPreferencesDialog:
     def create_general_tab (self):
         # Setup current address display
 
-        cellrenderer = gtk.CellRendererText ()
-        column = gtk.TreeViewColumn("Field", cellrenderer)
+        cellrenderer = Gtk.CellRendererText ()
+        column = Gtk.TreeViewColumn("Field", cellrenderer)
         column.add_attribute(cellrenderer, 'text', 0)
         self.address_treeview.append_column (column)
 
-        cellrenderer = gtk.CellRendererText ()
-        column = gtk.TreeViewColumn("Value", cellrenderer)
+        cellrenderer = Gtk.CellRendererText ()
+        column = Gtk.TreeViewColumn("Value", cellrenderer)
         column.add_attribute(cellrenderer, 'text', 1)
         self.address_treeview.append_column (column)
 
@@ -102,8 +96,8 @@ class LocalnetPreferencesDialog:
         self.update_current_address (address)
 
     def update_current_address (self, address):
-        self.address_store = gtk.ListStore (str, str)
-        self.address_store.set_sort_column_id (0, gtk.SORT_ASCENDING)
+        self.address_store = Gtk.ListStore (str, str)
+        self.address_store.set_sort_column_id (0, Gtk.SortType.ASCENDING)
 
         for key, value in address.items():
           self.address_store.append([key, value])
@@ -121,20 +115,20 @@ class LocalnetPreferencesDialog:
     def create_addresses_tab (self):
         # Setup current address display
 
-        cellrenderer = gtk.CellRendererText ()
-        column = gtk.TreeViewColumn("Mac Address", cellrenderer)
+        cellrenderer = Gtk.CellRendererText ()
+        column = Gtk.TreeViewColumn("Mac Address", cellrenderer)
         column.add_attribute(cellrenderer, 'text', 0)
         self.addresses_treeview.append_column (column)
 
-        cellrenderer = gtk.CellRendererText ()
-        cellrenderer.set_property('ellipsize', pango.ELLIPSIZE_END)
-        column = gtk.TreeViewColumn("Address", cellrenderer)
+        cellrenderer = Gtk.CellRendererText ()
+        cellrenderer.set_property('ellipsize', Pango.EllipsizeMode.END)
+        column = Gtk.TreeViewColumn("Address", cellrenderer)
         column.add_attribute(cellrenderer, 'text', 1)
         column.set_expand (True)
         self.addresses_treeview.append_column (column)
 
-        self.addresses_store = gtk.ListStore (str, str)
-        self.addresses_store.set_sort_column_id (0, gtk.SORT_ASCENDING)
+        self.addresses_store = Gtk.ListStore (str, str)
+        self.addresses_store.set_sort_column_id (0, Gtk.SortType.ASCENDING)
 
         self.addresses_treeview.set_model (self.addresses_store)
         self.load_addresses ()
@@ -161,7 +155,7 @@ class LocalnetPreferencesDialog:
         dialog = AddressDialog("New Address", "Enter an address.", self.address)
         response = dialog.run ()
 
-        if response == gtk.RESPONSE_OK:
+        if response == Gtk.ResponseType.OK:
             try:
                 localnet = self.provider.get_proxy()
                 localnet.SetAddress (dialog.address)

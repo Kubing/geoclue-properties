@@ -18,16 +18,11 @@
 
 import os
 import sys
-try:
-    import pygtk
-    pygtk.require("2.0")
-except:
-    pass
 
 try:
-    import gtk
-    import gobject
-    import pango
+    from gi.repository import Gtk
+    from gi.repository import GObject
+    from gi.repository import Pango
 except:
     print "Can't import Gtk"
     sys.exit(1)
@@ -51,12 +46,12 @@ class GeocluePropertiesDialog:
         path = os.path.dirname(os.path.abspath(__file__))
         self.uifile = os.path.join(path, "geoclue-properties.ui")
 
-        builder = gtk.Builder()
+        builder = Gtk.Builder()
         builder.add_from_file(self.uifile)
 
         builder.connect_signals({
-          "on_properties_dialog_close" : gtk.main_quit,
-          "on_close_button_clicked": gtk.main_quit,
+          "on_properties_dialog_close" : Gtk.main_quit,
+          "on_close_button_clicked": Gtk.main_quit,
           "on_preferences_button_clicked": self.on_preferences_button_clicked,
           "on_about_button_clicked": self.on_about_button_clicked,
           })
@@ -75,49 +70,49 @@ class GeocluePropertiesDialog:
         self.dialog.show ()
 
     def create_provider_tab (self):
-        cellrenderer = gtk.CellRendererText ()
-        cellrenderer.set_property('ellipsize', pango.ELLIPSIZE_END)
-        column = gtk.TreeViewColumn("Name", cellrenderer)
+        cellrenderer = Gtk.CellRendererText ()
+        cellrenderer.set_property('ellipsize', Pango.EllipsizeMode.END)
+        column = Gtk.TreeViewColumn("Name", cellrenderer)
         column.add_attribute(cellrenderer, 'markup', 1)
         column.set_expand (True)
         self.provider_treeview.append_column (column)
 
-        cellrenderer = gtk.CellRendererText ()
-        column = gtk.TreeViewColumn("Address", cellrenderer)
+        cellrenderer = Gtk.CellRendererText ()
+        column = Gtk.TreeViewColumn("Address", cellrenderer)
         column.add_attribute(cellrenderer, 'text', 2)
         column.add_attribute(cellrenderer, 'visible', 3)
         cellrenderer.set_property('xalign', 0.5)
         self.provider_treeview.append_column (column)
 
-        cellrenderer = gtk.CellRendererText ()
-        column = gtk.TreeViewColumn("Position", cellrenderer)
+        cellrenderer = Gtk.CellRendererText ()
+        column = Gtk.TreeViewColumn("Position", cellrenderer)
         column.add_attribute(cellrenderer, 'text', 2)
         column.add_attribute(cellrenderer, 'visible', 4)
         cellrenderer.set_property('xalign', 0.5)
         self.provider_treeview.append_column (column)
 
-        cellrenderer = gtk.CellRendererText ()
-        column = gtk.TreeViewColumn("Geocoding", cellrenderer)
+        cellrenderer = Gtk.CellRendererText ()
+        column = Gtk.TreeViewColumn("Geocoding", cellrenderer)
         column.add_attribute(cellrenderer, 'text', 2)
         column.add_attribute(cellrenderer, 'visible', 5)
         cellrenderer.set_property('xalign', 0.5)
         self.provider_treeview.append_column (column)
 
-        cellrenderer = gtk.CellRendererText ()
-        column = gtk.TreeViewColumn("Rev. Geocoding", cellrenderer)
+        cellrenderer = Gtk.CellRendererText ()
+        column = Gtk.TreeViewColumn("Rev. Geocoding", cellrenderer)
         column.add_attribute(cellrenderer, 'text', 2)
         column.add_attribute(cellrenderer, 'visible', 6)
         cellrenderer.set_property('xalign', 0.5)
         self.provider_treeview.append_column (column)
 
-        self.provider_store = gtk.ListStore (gobject.TYPE_PYOBJECT,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN)
-        self.provider_store.set_sort_column_id (1, gtk.SORT_ASCENDING)
+        self.provider_store = Gtk.ListStore (GObject.TYPE_PYOBJECT,
+            GObject.TYPE_STRING,
+            GObject.TYPE_STRING,
+            GObject.TYPE_BOOLEAN,
+            GObject.TYPE_BOOLEAN,
+            GObject.TYPE_BOOLEAN,
+            GObject.TYPE_BOOLEAN)
+        self.provider_store.set_sort_column_id (1, Gtk.SortType.ASCENDING)
 
         path = "/usr/share/geoclue-providers/"
         dir = os.listdir(path)
@@ -164,7 +159,7 @@ class GeocluePropertiesDialog:
         license = license_file.read()
         license_file.close()
 
-        dialog = gtk.AboutDialog()
+        dialog = Gtk.AboutDialog()
         dialog.set_name("Geoclue Properties")
         dialog.set_version("0.1")
         dialog.set_copyright("© 2009, Pierre-Luc Beaudoin")
@@ -177,24 +172,24 @@ class GeocluePropertiesDialog:
     def create_general_tab (self):
         # Setup current address display
 
-        cellrenderer = gtk.CellRendererText ()
-        column = gtk.TreeViewColumn("Field", cellrenderer)
+        cellrenderer = Gtk.CellRendererText ()
+        column = Gtk.TreeViewColumn("Field", cellrenderer)
         column.add_attribute(cellrenderer, 'text', 0)
         self.address_treeview.append_column (column)
 
-        cellrenderer = gtk.CellRendererText ()
-        column = gtk.TreeViewColumn("Value", cellrenderer)
+        cellrenderer = Gtk.CellRendererText ()
+        column = Gtk.TreeViewColumn("Value", cellrenderer)
         column.add_attribute(cellrenderer, 'text', 1)
         self.address_treeview.append_column (column)
 
         # Setup current position display
-        cellrenderer = gtk.CellRendererText ()
-        column = gtk.TreeViewColumn("Field", cellrenderer)
+        cellrenderer = Gtk.CellRendererText ()
+        column = Gtk.TreeViewColumn("Field", cellrenderer)
         column.add_attribute(cellrenderer, 'text', 0)
         self.position_treeview.append_column (column)
 
-        cellrenderer = gtk.CellRendererText ()
-        column = gtk.TreeViewColumn("Value", cellrenderer)
+        cellrenderer = Gtk.CellRendererText ()
+        column = Gtk.TreeViewColumn("Value", cellrenderer)
         column.add_attribute(cellrenderer, 'text', 1)
         self.position_treeview.append_column (column)
 
@@ -235,8 +230,8 @@ class GeocluePropertiesDialog:
         self.position_provider_label.set_text(name)
 
     def address_changed (self, timestamp, address, accuracy):
-        self.address_store = gtk.ListStore (str, str)
-        self.address_store.set_sort_column_id (0, gtk.SORT_ASCENDING)
+        self.address_store = Gtk.ListStore (str, str)
+        self.address_store.set_sort_column_id (0, Gtk.SortType.ASCENDING)
 
         for key, value in address.items():
           self.address_store.append([key, value])
@@ -245,8 +240,8 @@ class GeocluePropertiesDialog:
         mydate = date.fromtimestamp(timestamp)
 
     def position_changed (self, fields, timestamp, latitude, longitude, altitude, accuracy):
-        self.position_store = gtk.ListStore (str, str)
-        self.position_store.set_sort_column_id (0, gtk.SORT_ASCENDING)
+        self.position_store = Gtk.ListStore (str, str)
+        self.position_store.set_sort_column_id (0, Gtk.SortType.ASCENDING)
 
         self.position_treeview.set_model (self.position_store)
 
@@ -259,7 +254,7 @@ class GeocluePropertiesDialog:
 
 def main():
     dialog = GeocluePropertiesDialog()
-    gtk.main()
+    Gtk.main()
 
 if __name__ == "__main__":
     main()

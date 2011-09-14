@@ -19,16 +19,9 @@
 
 import os
 import sys
-try:
-    import pygtk
-    pygtk.require("2.0")
-except:
-    pass
 
 try:
-    import gtk
-    import gobject
-    import pango
+    from gi.repository import Gtk
 except:
     print "Can't import Gtk"
     sys.exit(1)
@@ -50,7 +43,7 @@ class ManualPreferencesDialog:
         path = os.path.dirname(os.path.abspath(__file__))
         self.uifile = os.path.join(path, "manual-preferences.ui")
 
-        builder = gtk.Builder()
+        builder = Gtk.Builder()
         builder.add_from_file(self.uifile)
 
         builder.connect_signals({
@@ -68,13 +61,13 @@ class ManualPreferencesDialog:
     def create_general_tab (self):
         # Setup current address display
 
-        cellrenderer = gtk.CellRendererText ()
-        column = gtk.TreeViewColumn("Field", cellrenderer)
+        cellrenderer = Gtk.CellRendererText ()
+        column = Gtk.TreeViewColumn("Field", cellrenderer)
         column.add_attribute(cellrenderer, 'text', 0)
         self.address_treeview.append_column (column)
 
-        cellrenderer = gtk.CellRendererText ()
-        column = gtk.TreeViewColumn("Value", cellrenderer)
+        cellrenderer = Gtk.CellRendererText ()
+        column = Gtk.TreeViewColumn("Value", cellrenderer)
         column.add_attribute(cellrenderer, 'text', 1)
         self.address_treeview.append_column (column)
 
@@ -96,8 +89,8 @@ class ManualPreferencesDialog:
         self.update_current_address(address)
 
     def update_current_address (self, address):
-        self.address_store = gtk.ListStore (str, str)
-        self.address_store.set_sort_column_id (0, gtk.SORT_ASCENDING)
+        self.address_store = Gtk.ListStore (str, str)
+        self.address_store.set_sort_column_id (0, Gtk.SortType.ASCENDING)
 
         for key, value in address.items():
           self.address_store.append([key, value])
@@ -112,7 +105,7 @@ class ManualPreferencesDialog:
         dialog = AddressDialog("New Address", "Enter the address associated with the current network.", self.address)
         response = dialog.run ()
 
-        if response == gtk.RESPONSE_OK:
+        if response == Gtk.ResponseType.OK:
             try:
                 manual = self.provider.get_proxy()
                 manual.SetAddress (0, dialog.address)

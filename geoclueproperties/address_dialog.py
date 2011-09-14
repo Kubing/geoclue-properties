@@ -1,14 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    import pygtk
-    pygtk.require("2.0")
-except:
-    pass
-
-try:
-    import gtk
-    import gobject
+    from gi.repository import Gtk
 except:
     print "Can't import Gtk"
     sys.exit(1)
@@ -23,7 +16,7 @@ class AddressDialog:
         path = os.path.dirname(os.path.abspath(__file__))
         self.uifile = os.path.join(path, "address-dialog.ui")
 
-        builder = gtk.Builder()
+        builder = Gtk.Builder()
         builder.add_from_file(self.uifile)
 
         builder.connect_signals({
@@ -71,7 +64,7 @@ class AddressDialog:
 
     def on_dialog_close (self, button):
         self.dialog.hide()
-        self.dialog.response (gtk.RESPONSE_CANCEL)
+        self.dialog.response (Gtk.ResponseType.CANCEL)
 
     def on_save_button_clicked (self, button):
 
@@ -81,8 +74,8 @@ class AddressDialog:
 
         if address['locality'] == "" and address['country'] == "":
 
-          dialog = gtk.MessageDialog (self.dialog, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR,
-              gtk.BUTTONS_CLOSE, "You must fill locality and country.")
+          dialog = Gtk.MessageDialog (self.dialog, Gtk.DialogFlags.MODAL, Gtk.MessageType.ERROR,
+              Gtk.ButtonsType.CLOSE, "You must fill locality and country.")
           dialog.set_title("Incomplete data")
           dialog.run()
           dialog.hide()
@@ -96,7 +89,7 @@ class AddressDialog:
         self.address = address
 
         self.dialog.hide()
-        self.dialog.response (gtk.RESPONSE_OK)
+        self.dialog.response (Gtk.ResponseType.OK)
 
     def run (self):
         return self.dialog.run ()
